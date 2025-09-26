@@ -14,15 +14,25 @@ jobs:
     name: generate-github-profile-3d-contrib
     steps:
       - uses: actions/checkout@v5
+        with:
+          ref: main  # 明确指定要操作的分支（根据实际分支名修改，如master）
+      
       - uses: yoshi389111/github-profile-3d-contrib@latest
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           USERNAME: ${{ github.repository_owner }}
+      
       - name: Commit & Push
         run: |
           git config user.name github-actions
           git config user.email github-actions@github.com
+          
+          # 关键步骤：拉取远程最新代码，解决冲突
+          git pull origin main --rebase  # 使用rebase方式拉取，避免产生merge commit
+          
+          # 添加并提交生成的文件
           git add -A .
-          if git commit -m "generated"; then
-            git push
+          if git commit -m "generated 3D contrib profile"; then
+            git push origin main  # 明确推送目标分支
           fi
+    
