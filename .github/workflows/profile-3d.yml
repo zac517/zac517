@@ -14,31 +14,15 @@ jobs:
     name: generate-github-profile-3d-contrib
     steps:
       - uses: actions/checkout@v5
-        with:
-          ref: main  # 明确主分支（如果是master，替换为master）
-          fetch-depth: 0  # 拉取所有历史记录，避免pull时因历史不完整冲突
-
-      # 步骤1：先拉取远程最新代码（关键！在生成文件前同步）
-      - name: Pull latest remote code
-        run: |
-          git config user.name github-actions
-          git config user.email github-actions@github.com
-          git pull origin main --rebase  # 用rebase同步，不产生merge commit
-
-      # 步骤2：生成3D贡献图（此时本地代码已是最新，生成的文件不会与远程冲突）
       - uses: yoshi389111/github-profile-3d-contrib@latest
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           USERNAME: ${{ github.repository_owner }}
-
-      # 步骤3：提交并推送生成的文件
       - name: Commit & Push
         run: |
-          git add -A .  # 添加所有生成的文件
-          # 只有当有文件修改时才提交（避免空commit）
-          if git diff --cached --quiet; then
-            echo "No changes to commit"
-          else
-            git commit -m "generated 3D contrib profile"
-            git push origin main  # 明确推送到主分支
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git add -A .
+          if git commit -m "generated"; then
+            git push
           fi
